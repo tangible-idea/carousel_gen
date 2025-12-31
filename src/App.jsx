@@ -31,6 +31,9 @@ function App() {
   const [imageCount, setImageCount] = useState(() => {
     return parseInt(localStorage.getItem('imageCount')) || 5
   })
+  const [selectedStyle, setSelectedStyle] = useState(() => {
+    return localStorage.getItem('selectedStyle') || 'style1'
+  })
   const [globalPrompt, setGlobalPrompt] = useState(() => {
     return localStorage.getItem('globalPrompt') || ''
   })
@@ -57,12 +60,101 @@ function App() {
   }, [imageCount])
 
   useEffect(() => {
+    localStorage.setItem('selectedStyle', selectedStyle)
+    setGlobalPrompt(styles[selectedStyle].defaultGlobalPrompt)
+  }, [selectedStyle])
+
+  useEffect(() => {
     localStorage.setItem('globalPrompt', globalPrompt)
   }, [globalPrompt])
 
   useEffect(() => {
     localStorage.setItem('prompts', JSON.stringify(prompts))
   }, [prompts])
+
+  const styles = {
+    style1: {
+      name: 'Executive Minimal',
+      description: 'Ultra-clean business design',
+      prompt: `Global style: clean modern business carousel, ultra-minimal editorial layout, strict modular grid, wide margins, strong typographic hierarchy, high contrast, vector shapes only (no photos), no logos, no trademarks, restrained geometric accents, crisp edges, premium LinkedIn-style design, consistent spacing system (8pt), plenty of negative space. Palette: Charcoal (#111827), Off-white (#F9FAFB), Accent Blue (#2563EB). Typography: Headline: bold sans-serif, tight tracking, sentence case, short punchy lines. Body: regular sans-serif, comfortable line-height, avoid tiny text, perfect English spelling. Emphasis: use weight + color only (no underlines, no italics overload).`,
+      footer: `Footer (Fixed spec — identical on every slide): Footer bar height: thin strip at bottom (same height every slide). Background: Charcoal (#111827). Text color: Off-white (#F9FAFB). Left (all caps, small): WEAK TIES > STRONG TIES. Center (small): Hidden Job Market & Networking. Right (all caps, small): SLIDE_NUMBER/${imageCount.toString().padStart(2, '0')} (change per slide to 02/05, 03/05, etc.). Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer.`,
+      defaultGlobalPrompt: `Global style:
+clean modern business carousel, ultra-minimal editorial layout, strict modular grid, wide margins, strong typographic hierarchy, high contrast, vector shapes only (no photos), no logos, no trademarks, restrained geometric accents, crisp edges, premium LinkedIn-style design, consistent spacing system (8pt), plenty of negative space
+
+Palette:
+Charcoal (#111827)
+Off-white (#F9FAFB)
+Accent Blue (#2563EB)
+
+Typography:
+Headline: bold sans-serif, tight tracking, sentence case, short punchy lines
+Body: regular sans-serif, comfortable line-height, avoid tiny text, perfect English spelling
+Emphasis: use weight + color only (no underlines, no italics overload)
+
+Footer (Fixed spec — identical on every slide):
+Footer bar height: thin strip at bottom (same height every slide)
+Background: Charcoal (#111827)
+Text color: Off-white (#F9FAFB)
+Left (all caps, small): WEAK TIES > STRONG TIES
+Center (small): Hidden Job Market & Networking
+Right (all caps, small): 01/05 (change per slide to 02/05, 03/05, etc.)
+Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer`
+    },
+    style2: {
+      name: 'Cyan Tech Grid',
+      description: 'Sharp & bright tech design',
+      prompt: `Global style: clean modern business carousel, minimalist editorial layout, subtle blueprint-style grid, strong typographic hierarchy, generous whitespace, high contrast, vector-only abstract tech shapes (lines, nodes, brackets), no photos, no logos, no trademarks, crisp edges, consistent margins, premium LinkedIn-style design, limited decorative elements (one accent motif per slide). Palette: Deep Navy (#0B1F3B), Off-white (#F7F7F5), Accent Cyan (#2EC4FF). Typography: Headline: bold sans-serif, large size, left-aligned, short lines, high impact. Body: regular sans-serif, medium size, clear hierarchy (max 2 levels), perfect English spelling. Numbers: tabular-feel consistency, never tiny.`,
+      footer: `Footer (Fixed spec — identical on every slide): Footer bar height: thin strip at bottom (same height every slide). Background: Deep Navy (#0B1F3B). Text color: Off-white (#F7F7F5). Left (all caps, small): WEAK TIES > STRONG TIES. Center (small): Hidden Job Market & Networking. Right (all caps, small): SLIDE_NUMBER/${imageCount.toString().padStart(2, '0')} (change per slide to 02/05, 03/05, etc.). Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer.`,
+      defaultGlobalPrompt: `Global style:
+clean modern business carousel, minimalist editorial layout, subtle blueprint-style grid, strong typographic hierarchy, generous whitespace, high contrast, vector-only abstract tech shapes (lines, nodes, brackets), no photos, no logos, no trademarks, crisp edges, consistent margins, premium LinkedIn-style design, limited decorative elements (one accent motif per slide)
+
+Palette:
+Deep Navy (#0B1F3B)
+Off-white (#F7F7F5)
+Accent Cyan (#2EC4FF)
+
+Typography:
+Headline: bold sans-serif, large size, left-aligned, short lines, high impact
+Body: regular sans-serif, medium size, clear hierarchy (max 2 levels), perfect English spelling
+Numbers: tabular-feel consistency, never tiny
+
+Footer (Fixed spec — identical on every slide):
+Footer bar height: thin strip at bottom (same height every slide)
+Background: Deep Navy (#0B1F3B)
+Text color: Off-white (#F7F7F5)
+Left (all caps, small): WEAK TIES > STRONG TIES
+Center (small): Hidden Job Market & Networking
+Right (all caps, small): 01/05 (change per slide to 02/05, 03/05, etc.)
+Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer`
+    },
+    style3: {
+      name: 'Warm Premium Editorial',
+      description: 'Confident & human design',
+      prompt: `Global style: clean modern business carousel, premium editorial layout, soft but structured grid, generous whitespace, strong typographic hierarchy, high contrast, vector shapes only (no photos), no logos, no trademarks, subtle rounded geometry accents, calm boardroom tone, consistent margins, crisp edges, minimal ornamentation (one highlight block per slide). Palette: Near-black (#0F172A), Warm Off-white (#FAF7F0), Accent Amber (#F59E0B). Typography: Headline: bold sans-serif, slightly wider tracking, title case or sentence case (stay consistent), short lines. Body: regular sans-serif, readable size, avoid long paragraphs, perfect English spelling. Callouts: accent color + bold weight, limit to 1 callout per slide.`,
+      footer: `Footer (Fixed spec — identical on every slide): Footer bar height: thin strip at bottom (same height every slide). Background: Near-black (#0F172A). Text color: Warm Off-white (#FAF7F0). Left (all caps, small): WEAK TIES > STRONG TIES. Center (small): Hidden Job Market & Networking. Right (all caps, small): SLIDE_NUMBER/${imageCount.toString().padStart(2, '0')} (change per slide to 02/05, 03/05, etc.). Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer.`,
+      defaultGlobalPrompt: `Global style:
+clean modern business carousel, premium editorial layout, soft but structured grid, generous whitespace, strong typographic hierarchy, high contrast, vector shapes only (no photos), no logos, no trademarks, subtle rounded geometry accents, calm boardroom tone, consistent margins, crisp edges, minimal ornamentation (one highlight block per slide)
+
+Palette:
+Near-black (#0F172A)
+Warm Off-white (#FAF7F0)
+Accent Amber (#F59E0B)
+
+Typography:
+Headline: bold sans-serif, slightly wider tracking, title case or sentence case (stay consistent), short lines
+Body: regular sans-serif, readable size, avoid long paragraphs, perfect English spelling
+Callouts: accent color + bold weight, limit to 1 callout per slide
+
+Footer (Fixed spec — identical on every slide):
+Footer bar height: thin strip at bottom (same height every slide)
+Background: Near-black (#0F172A)
+Text color: Warm Off-white (#FAF7F0)
+Left (all caps, small): WEAK TIES > STRONG TIES
+Center (small): Hidden Job Market & Networking
+Right (all caps, small): 01/05 (change per slide to 02/05, 03/05, etc.)
+Font: same sans-serif, small size, slightly increased letter spacing, baseline-aligned, no icons in footer`
+    }
+  }
 
   const getModelName = () => {
     return 'gemini-2.5-flash-image'
@@ -80,9 +172,11 @@ function App() {
     }
 
     const aspectRatioText = aspectRatio === '1:1' ? '1:1 square ratio' : '4:5 vertical ratio for Instagram post'
+    const stylePrompt = styles[selectedStyle].prompt
+    const footerPrompt = styles[selectedStyle].footer ? ` ${styles[selectedStyle].footer.replace('SLIDE_NUMBER', (index + 1).toString().padStart(2, '0'))}` : ''
     const fullPrompt = globalPrompt 
-      ? `${globalPrompt}. ${prompts[index]}. ${aspectRatioText}`
-      : `${prompts[index]}. ${aspectRatioText}`
+      ? `${stylePrompt}${footerPrompt} ${globalPrompt}. ${prompts[index]}. ${aspectRatioText}`
+      : `${stylePrompt}${footerPrompt} ${prompts[index]}. ${aspectRatioText}`
 
     if (!fullPrompt.trim()) {
       toast({
@@ -206,7 +300,7 @@ function App() {
       const aspectRatioText = aspectRatio === '1:1' ? '1:1 square' : '4:5 vertical'
       const languageText = promptLanguage === 'en' ? '영어로' : promptLanguage === 'ko' ? '한국어로' : '일본어로'
       const promptArray = Array(imageCount).fill('"prompt"').join(', ')
-      const systemPrompt = `\`\`\`${ideaSource}\`\`\`\n\n위 내용을 가지고 ${languageText} carousel 만들 이미지 생성 프롬프트 시리즈 만들어줘. ${imageCount}장으로 만들어줘. 비율은 ${aspectRatioText}. 각 프롬프트는 명확하고 구체적으로 작성해줘. JSON 형식으로 정확히 ${imageCount}개의 프롬프트를 응답해줘: {"prompts": [${promptArray}]}`
+      const systemPrompt = `\`\`\`${ideaSource}\`\`\`\n\n위 내용을 가지고 ${languageText} Instagram carousel 만들 이미지 생성 프롬프트 시리즈 만들어줘. ${imageCount}장으로 만들어줘. 비율은 ${aspectRatioText}. 각 프롬프트는 명확하고 구체적으로 작성해줘. JSON 형식으로 정확히 ${imageCount}개의 프롬프트를 응답해줘: {"prompts": [${promptArray}]}`
       
       const response = await ai.models.generateContent({
         model,
@@ -331,13 +425,6 @@ function App() {
                   <Label>이미지 개수</Label>
                   <div className="flex gap-2">
                     <Button
-                      variant={imageCount === 1 ? 'default' : 'outline'}
-                      onClick={() => setImageCount(1)}
-                      className="flex-1"
-                    >
-                      1개
-                    </Button>
-                    <Button
                       variant={imageCount === 3 ? 'default' : 'outline'}
                       onClick={() => setImageCount(3)}
                       className="flex-1"
@@ -355,8 +442,31 @@ function App() {
                 </div>
               </div>
 
+              <div className="space-y-3">
+                <Label>스타일 선택</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {Object.entries(styles).map(([key, style]) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedStyle(key)}
+                      className={`relative p-4 rounded-lg border-2 transition-all text-left ${
+                        selectedStyle === key
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="aspect-video bg-muted rounded mb-2 flex items-center justify-center text-muted-foreground text-xs">
+                        Preview
+                      </div>
+                      <div className="font-medium text-sm">{style.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{style.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="global-prompt">글로벌 포맷 프롬프트</Label>
+                <Label htmlFor="global-prompt">글로벌 포맷 프롬프트 (선택사항)</Label>
                 <Textarea
                   id="global-prompt"
                   value={globalPrompt}

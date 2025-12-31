@@ -475,37 +475,6 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
                   rows={3}
                 />
               </div>
-
-              <div className="flex gap-2">
-                <Button
-                  onClick={generateAllImages}
-                  disabled={loading.some(l => l)}
-                  className="flex-1"
-                  size="lg"
-                >
-                  {loading.some(l => l) ? '생성 중...' : 'Generate All Images'}
-                </Button>
-                {validImages.length > 0 && (
-                  <>
-                    <Button
-                      onClick={() => openPreview(0)}
-                      variant="outline"
-                      size="lg"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Button
-                      onClick={downloadAllImages}
-                      variant="outline"
-                      size="lg"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </>
-                )}
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -633,6 +602,46 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
             </div>
           ))}
         </div>
+
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <div className="flex gap-2">
+              <Button
+                onClick={generateAllImages}
+                disabled={loading.some(l => l) || prompts.slice(0, imageCount).some(p => !p.trim())}
+                className="flex-1"
+                size="lg"
+              >
+                {loading.some(l => l) ? '생성 중...' : 'Generate All Images'}
+              </Button>
+              {validImages.length > 0 && (
+                <>
+                  <Button
+                    onClick={() => openPreview(0)}
+                    variant="outline"
+                    size="lg"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button
+                    onClick={downloadAllImages}
+                    variant="outline"
+                    size="lg"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </>
+              )}
+            </div>
+            {prompts.slice(0, imageCount).some(p => !p.trim()) && (
+              <p className="text-sm text-destructive mt-2">
+                모든 프롬프트를 입력해주세요 ({prompts.slice(0, imageCount).filter(p => p.trim()).length}/{imageCount}개 완료)
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
       <Toaster />
 
@@ -645,7 +654,7 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
             </DialogDescription>
           </DialogHeader>
           <div className="relative">
-            <div className={`relative bg-black flex items-center justify-center ${
+            <div className={`relative bg-white flex items-center justify-center ${
               aspectRatio === '1:1' ? 'aspect-square' : 'aspect-[4/5]'
             }`}>
               {images[previewIndex] ? (
@@ -655,7 +664,7 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="text-white text-center">
+                <div className="text-muted-foreground text-center">
                   <Image className="w-16 h-16 mx-auto mb-2 opacity-50" />
                   <p>이미지 없음</p>
                 </div>

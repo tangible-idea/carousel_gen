@@ -177,6 +177,13 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
     const fullPrompt = globalPrompt 
       ? `${stylePrompt}${footerPrompt} ${globalPrompt}. ${prompts[index]}. ${aspectRatioText}`
       : `${stylePrompt}${footerPrompt} ${prompts[index]}. ${aspectRatioText}`
+    
+    console.log('=== Image Generation Debug ===')
+    console.log('Selected Style:', selectedStyle)
+    console.log('Style Name:', styles[selectedStyle].name)
+    console.log('Full Prompt Length:', fullPrompt.length)
+    console.log('Full Prompt Preview:', fullPrompt.substring(0, 200) + '...')
+    console.log('==============================')
 
     if (!fullPrompt.trim()) {
       toast({

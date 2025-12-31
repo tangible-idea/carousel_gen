@@ -10,6 +10,7 @@ import { Toaster } from '@/components/ui/toaster'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -26,10 +27,7 @@ function App() {
     const saved = localStorage.getItem('prompts')
     return saved ? JSON.parse(saved) : ['', '', '', '', '']
   })
-  const [images, setImages] = useState(() => {
-    const saved = localStorage.getItem('images')
-    return saved ? JSON.parse(saved) : [null, null, null, null, null]
-  })
+  const [images, setImages] = useState([null, null, null, null, null])
   const [loading, setLoading] = useState([false, false, false, false, false])
   const [apiKey] = useState(import.meta.env.VITE_GOOGLE_API_KEY || '')
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -46,10 +44,6 @@ function App() {
   useEffect(() => {
     localStorage.setItem('prompts', JSON.stringify(prompts))
   }, [prompts])
-
-  useEffect(() => {
-    localStorage.setItem('images', JSON.stringify(images))
-  }, [images])
 
   const getModelName = () => {
     return 'gemini-2.5-flash-image'
@@ -313,6 +307,9 @@ function App() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Instagram Carousel Preview</DialogTitle>
+            <DialogDescription>
+              생성된 이미지를 Instagram 캐러셀 형식으로 미리보기
+            </DialogDescription>
           </DialogHeader>
           <div className="relative">
             <div className={`relative bg-black flex items-center justify-center ${

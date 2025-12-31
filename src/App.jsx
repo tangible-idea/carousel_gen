@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { RefreshCw, Image } from 'lucide-react'
+import { RefreshCw, Image, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import { GoogleGenAI } from '@google/genai'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -7,6 +7,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 function App() {
   const { toast } = useToast()
@@ -20,9 +26,14 @@ function App() {
     const saved = localStorage.getItem('prompts')
     return saved ? JSON.parse(saved) : ['', '', '', '', '']
   })
-  const [images, setImages] = useState([null, null, null, null, null])
+  const [images, setImages] = useState(() => {
+    const saved = localStorage.getItem('images')
+    return saved ? JSON.parse(saved) : [null, null, null, null, null]
+  })
   const [loading, setLoading] = useState([false, false, false, false, false])
   const [apiKey] = useState(import.meta.env.VITE_GOOGLE_API_KEY || '')
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewIndex, setPreviewIndex] = useState(0)
 
   useEffect(() => {
     localStorage.setItem('aspectRatio', aspectRatio)
@@ -35,6 +46,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('prompts', JSON.stringify(prompts))
   }, [prompts])
+
+  useEffect(() => {
+    localStorage.setItem('images', JSON.stringify(images))
+  }, [images])
 
   const getModelName = () => {
     return 'gemini-2.5-flash-image'
@@ -78,18 +93,20 @@ function App() {
         contents: fullPrompt,
       })
 
-      const newImages = [...images]
-      
       for (const part of response.candidates[0].content.parts) {
         if (part.inlineData) {
           const base64Data = part.inlineData.data
           const mimeType = part.inlineData.mimeType || 'image/png'
-          newImages[index] = `data:${mimeType};base64,${base64Data}`
+          const imageUrl = `data:${mimeType};base64,${base64Data}`
+          
+          setImages(prev => {
+            const updated = [...prev]
+            updated[index] = imageUrl
+            return updated
+          })
           break
         }
       }
-      
-      setImages(newImages)
     } catch (error) {
       console.error('Image generation error:', error)
       const errorMessage = error.message || error.response?.data?.error?.message || '알 수 없는 오류'
@@ -131,6 +148,21 @@ function App() {
     newPrompts[index] = value
     setPrompts(newPrompts)
   }
+
+  const openPreview = (index) => {
+    setPreviewIndex(index)
+    setPreviewOpen(true)
+  }
+
+  const nextImage = () => {
+    setPreviewIndex((prev) => (prev + 1) % 5)
+  }
+
+  const prevImage = () => {
+    setPreviewIndex((prev) => (prev - 1 + 5) % 5)
+  }
+
+  const validImages = images.filter(img => img !== null)
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,14 +208,26 @@ function App() {
                 />
               </div>
 
-              <Button
-                onClick={generateAllImages}
-                disabled={loading.some(l => l)}
-                className="w-full"
-                size="lg"
-              >
-                {loading.some(l => l) ? '생성 중...' : 'Generate All Images'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={generateAllImages}
+                  disabled={loading.some(l => l)}
+                  className="flex-1"
+                  size="lg"
+                >
+                  {loading.some(l => l) ? '생성 중...' : 'Generate All Images'}
+                </Button>
+                {validImages.length > 0 && (
+                  <Button
+                    onClick={() => openPreview(0)}
+                    variant="outline"
+                    size="lg"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -221,17 +265,35 @@ function App() {
                       <img
                         src={images[index]}
                         alt={`Generated ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => openPreview(index)}
                       />
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => generateImage(index)}
-                        className="absolute top-2 right-2 h-8 w-8"
-                        title="Regenerate"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openPreview(index)
+                          }}
+                          className="h-8 w-8"
+                          title="Preview"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            generateImage(index)
+                          }}
+                          className="h-8 w-8"
+                          title="Regenerate"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </>
                   ) : (
                     <div className="text-center p-4">
@@ -246,6 +308,76 @@ function App() {
         </div>
       </div>
       <Toaster />
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Instagram Carousel Preview</DialogTitle>
+          </DialogHeader>
+          <div className="relative">
+            <div className={`relative bg-black flex items-center justify-center ${
+              aspectRatio === '1:1' ? 'aspect-square' : 'aspect-[4/5]'
+            }`}>
+              {images[previewIndex] ? (
+                <img
+                  src={images[previewIndex]}
+                  alt={`Preview ${previewIndex + 1}`}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="text-white text-center">
+                  <Image className="w-16 h-16 mx-auto mb-2 opacity-50" />
+                  <p>이미지 없음</p>
+                </div>
+              )}
+              
+              {validImages.length > 1 && (
+                <>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
+            </div>
+            
+            <div className="flex justify-center gap-1 mt-4">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setPreviewIndex(idx)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    idx === previewIndex 
+                      ? 'w-8 bg-primary' 
+                      : img 
+                        ? 'w-1.5 bg-primary/40'
+                        : 'w-1.5 bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              {previewIndex + 1} / 5
+              {prompts[previewIndex] && (
+                <p className="mt-2 text-xs">{prompts[previewIndex]}</p>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

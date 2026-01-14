@@ -402,7 +402,7 @@ Font: same sans-serif, small size, slightly increased letter spacing, baseline-a
           <h1 className="text-3xl font-semibold tracking-tight mb-1">
             Instagram Carousel Generator
           </h1>
-          <p className="text-sm text-muted-foreground">Gemini로 캐러셀 이미지 생성</p>
+          <p className="text-sm text-muted-foreground">AI로 캐러셀 이미지 생성</p>
         </div>
 
         <Card className="mb-8">
